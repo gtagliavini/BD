@@ -15,22 +15,19 @@
     \textbf{Abstract}
 \end{center}
 
-Traditional von Neumann architectures are hitting a wall. 
-The physical separation between memory and processing creates a bottleneck that is becoming critical for data-intensive applications, 
-particularly in AI and Machine Learning. 
-Moving data back and forth between CPU and memory is becoming more time and energy consuming than the actual computation: this is the "memory wall" problem.
+Traditional von Neumann architectures are hitting a wall.
+The physical separation between memory and processing creates a bottleneck that is becoming critical for data-intensive applications, particularly in AI and Machine Learning.
+Moving data back and forth between CPU and memory is becoming more time-consuming and energy-intensive than the actual computation. This issue is commonly referred to as the "memory wall" problem.
 
-This dissertation explores Phase-Change Memory (PCM) as a potential solution through Analog In-Memory Computing (AIMC). 
-The core idea is to perform the computation directly where the data is stored instead of relying on costly moving cycles. 
-PCM is particularly interesting for this kind of application because its analog resistance states can naturally represent neural network weights, 
-and its crossbar architecture allows for parallel computation of matrix-vector multiplications in a single analog operation.
+This dissertation explores Phase-Change Memory (PCM) as a potential solution through Analog In-Memory Computing (AIMC).
+The core idea is to perform the computation directly where the data is stored instead of relying on time-consuming data transfers.
+PCM is particularly suitable for this kind of application because its analog resistance states can naturally represent neural network weights, and its crossbar architecture allows for parallel computation of matrix-vector multiplications in a single analog operation.
 
-The main contribution of this work is a working virtual prototype of a PCM-based AIMC accelerator. 
-The model is implemented in C++ and integrated into the GVSoC simulation platform within the PULP ecosystem. 
-A significant part of the work focused on optimising the simulation itself, making it sufficiently fast to be useful for experimentation. 
-This involved designing cache-friendly data-structures and implementing multithreaded execution for the core Matrix-Vector Multiplication algorithm.
-Performance benchmarks demonstrate the effectiveness of these optimisations. 
-The flat buffer data-structure reduces cache misses by up to x times compared to a standard multidimensional array approach,  %TODO: re-check numbers again
+The main contribution of this work is a virtual prototype of a PCM-based AIMC accelerator. 
+The model is implemented in C++ and integrated into the GVSoC simulation platform within the PULP ecosystem.
+A significant part of the work focused on optimising the simulation itself, making it sufficiently fast to be useful for experimentation.
+This involved designing cache-friendly data structures and implementing multithreaded execution for the core Matrix-Vector Multiplication algorithm.
+Performance benchmarks demonstrate the effectiveness of these optimisations.
+The flat buffer data structure reduces cache misses by up to x times compared to a standard multidimensional array approach,  %TODO: re-check numbers again
 and multithreading provides significant speedup on multi-core systems, with optimal performance achieved at 8 threads for the tested configurations.
-The result is a configurable simulation framework that can be used to explore AIMC architectures and provides a 
-foundation for co-designing hardware accelerators and the software needed to use it effectively.
+The result is a configurable simulation framework that can be used to explore AIMC architectures and provides a foundation for co-designing hardware accelerators and the software needed to use them effectively.
