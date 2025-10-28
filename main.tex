@@ -1,0 +1,101 @@
+\documentclass[11pt]{report}
+\usepackage{blindtext}
+\usepackage{titlesec}
+\usepackage{amsfonts} 
+\usepackage{textcomp}
+\usepackage{tabto}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{graphicx} 
+\usepackage{needspace}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{array}
+\usepackage[section]{placeins}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+
+\captionsetup[lstlisting]{labelformat=empty}
+
+
+
+\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
+\usepackage[caption=false]{subfig}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{Diss.bib}
+\usepackage{titlesec}
+\linespread{1.1}
+
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}
+  {\thechapter}
+  {1ex}
+  {}
+
+\def\emptypage{\newpage \ \newpage}
+
+\newcommand{\picref}[1]{[\ref{#1}]}
+
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+  {\end{tabular}\par\vspace{\belowdisplayskip}}
+
+
+\begin{document}
+\pagenumbering{roman}
+
+\include{Chapters/Title}
+\emptypage
+
+\include{Chapters/Abstract}
+\emptypage
+
+\include{Chapters/Acknowledgements}
+
+\newpage
+\tableofcontents
+\newpage
+\addcontentsline{toc}{chapter}{List of Figures}
+\label{chap:LOF}
+\listoffigures
+\begingroup
+\let\clearpage\relax
+\addcontentsline{toc}{chapter}{List of Tables}
+\label{chap:LOT}
+\listoftables
+\endgroup
+
+\newpage
+
+
+\include{Chapters/Abb}  
+\newcounter{lastroman}
+\setcounter{lastroman}{\value{page}}
+\pagenumbering{arabic}
+%\include{Chapters/Datastruct}
+%\include{Chapters/MVM_Algo}
+\include{Chapters/Introduction}
+\include{Chapters/Background}
+\include{Chapters/module}
+\include{Chapters/Test}
+\include{Chapters/Conclusion}
+\pagenumbering{roman}
+\setcounter{page}{\value{lastroman}}
+\addtocounter{page}{1}
+\emptypage
+\medskip
+\addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography
+
+
+\end{document}

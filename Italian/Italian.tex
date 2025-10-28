@@ -1,0 +1,31 @@
+
+\documentclass{report}
+\usepackage{blindtext}
+\usepackage{titlesec}
+\usepackage{amsfonts} 
+\usepackage{textcomp}
+\usepackage{tabto}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{graphicx} 
+\usepackage{needspace}
+\usepackage{geometry}
+\usepackage{xr}
+\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
+\usepackage[caption=false]{subfig}
+\externaldocument{../main}
+\def\emptypage{\newpage \ \newpage}
+
+
+\begin{document}
+\pagenumbering{roman}
+
+\include{IT_Title}
+\emptypage
+
+\include{IT_Abstract}
+\emptypage
+\include{IT_Chapters}
+
+\end{document}

@@ -1,0 +1,34 @@
+\begin{table}[htbp]
+\centering
+\caption{Cachegrind Performance Counters for Optimised MVM Algorithms (-O3)}
+\label{tab:cachegrind_o3_revised}
+\sisetup{group-separator={,}}
+
+\resizebox{\textwidth}{!}{
+\begin{tabular}{
+  l 
+  S[table-format=7.0]
+  S[table-format=7.0]
+  S[table-format=4.0]
+  S[table-format=6.0]
+  S[table-format=7.0]
+  S[table-format=4.0]
+}
+\toprule
+\textbf{Algorithm} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{Instructions}\\(\textbf{Ir})\end{tabular}} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{Data Reads}\\(\textbf{Dr})\end{tabular}} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{L1 Read}\\\textbf{Misses}\end{tabular}} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{Data Writes}\\(\textbf{Dw})\end{tabular}} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{Branches}\\(\textbf{Bc})\end{tabular}} &
+{\begin{tabular}[c]{@{}c@{}}\textbf{Branch}\\\textbf{Misses}\end{tabular}} \\
+\midrule
+Naive     & 7343702 & 1311265 & 8270 & 262154 & 1049093 & 534   \\
+Optimise  & 1814663 & 66586   & 8340 & 1027   & 33809   & 1077  \\
+4-Thread  & 1814672 & 66580   & 8346 & 1024   & 33804   & 1071  \\
+8-Thread  & 1808472 & 65544   & 8211 & 0      & 33792   & 1050  \\
+16-Thread & 1807632 & 65552   & 8232 & 0      & 33808   & 1066  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

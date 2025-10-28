@@ -1,0 +1,62 @@
+
+\lstdefinestyle{cleanasm}{
+    language={[x86masm]Assembler},
+    basicstyle=\tiny,
+    keywordstyle=,
+    commentstyle=,
+    morekeywords={mov, push, lea, sub, add, cdqe},
+    showstringspaces=false
+}
+
+\begin{table}[!ht]
+\centering
+\begin{minipage}[t]{.48\textwidth}
+    \begin{lstlisting}[style=cleanasm,caption={Optimised Function Entry}]
+        mov   r10, rdi
+        push  r12
+        lea   r9, [rcx+4]
+        push  rbp
+        mov   rbp, r8
+        push  rbx
+        mov   rbx, rdx
+    \end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.48\textwidth}
+    \begin{lstlisting}[style=cleanasm,caption={Un-Optimised Function Entry}]
+        push  rbp
+        mov   rbp, rsp
+        push  rbx
+        sub   rsp, 120
+        mov   QWORD PTR [rbp-88], rdi
+        mov   QWORD PTR [rbp-96], rsi
+        mov   QWORD PTR [rbp-104], rdx
+        mov   QWORD PTR [rbp-112], rcx
+        mov   QWORD PTR [rbp-120], r8
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{0.5em} 
+
+\begin{minipage}[t]{.48\textwidth}
+    \begin{lstlisting}[style=cleanasm,caption={Optimised Variable Access}]
+        movsx rdx, edi
+        mov   r8, QWORD PTR [rbx+rdx*8]
+    \end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.48\textwidth}
+    \begin{lstlisting}[style=cleanasm,caption={Un-Optimised Variable Access}]
+        mov   eax, DWORD PTR [rbp-24]
+        cdqe
+        lea   rdx, [0+rax*4]
+        mov   rax, QWORD PTR [rbp-64]
+        add   rax, rdx
+        mov   eax, DWORD PTR [rax]
+        mov   DWORD PTR [rbp-68], eax
+    \end{lstlisting}
+\end{minipage}
+
+\caption{Comparison between optimised and un-optimised function setup and variable access code.}
+\label{tab:asm_opt_comparison}
+\end{table}

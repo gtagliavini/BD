@@ -1,0 +1,16 @@
+\chapter{Conclusion \& Future Work}\label{chap:conclusion}
+\section{Conclusion}\label{sec:res_sum}
+In this dissertation we designed, implemented, and validated a virtual prototype of a Phase-Change-Memory-based analog in-memory computing accelerator within the GVSoC simulation environment for the PULP platform. 
+The core of the work is a C++ model that performs efficient matrix-vector multiplication while closely reproducing PCM device physics, including the analog resistance states and the associated read/write dynamics. 
+This model was seamlessly integrated into GVSoC as a memory-mapped peripheral, which allows full-system simulation and enables the accelerator's performance to be evaluated within a complete system-on-chip environment. 
+To improve simulation speed and scalability, we flattened data-structures to optimise memory-access patterns, reducing cache misses and increasing overall throughput, and we introduced multithreaded kernels that parallelise the MVM computations across cores. 
+Extensive benchmarking identified the optimal thread counts for a variety of hardware configurations. 
+The final accelerator model is highly configurable: users can adjust matrix sizes, cell sizes, and threading options, making the prototype a valuable tool for exploring architectural trade-offs in analog in-memory computing systems.
+\section{Future Work}\label{sec:future_work}
+While this dissertation has laid a solid foundation, there are several ways for future work that can further enhance the PCM-based AIMC accelerator model and its applications:\\
+\paragraph{Extending the PCM Model:} Future work could focus on incorporating more detailed physical models of PCM devices,
+  including variability, endurance, and retention characteristics. While the current model it's already capable of simulating drift resistance MVM by using the differential algorithm a well known effect of PCM devices
+  is the variability of read operation while under thermal stress. The current model exposes read, write and computation counters that could be used for further analysis of these effects.\\
+\paragraph{Exploring Additional Optimisation Techniques to Improve Simulation Performance:} Further research could investigate additional optimisation strategies.
+  The current data-structure and the module itself could be further optimised by exploring both SIMD instructions by-design and GPU acceleration. 
+  Without the need to move the PCM weights frequently, this module is a perfect candidate for GPU acceleration.\\

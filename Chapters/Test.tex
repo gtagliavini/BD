@@ -1,0 +1,113 @@
+\chapter{Tests and Results}\label{chap:test}
+This chapter presents the results of the tests conducted and validation of the module.
+\section{Algorithm Analysis and Tests}\label{sec:alg_anal}
+\subsection{Data Metrics}\label{sec:bench}
+The project aims to provide fast and efficient MVMs for matrices stored in PCM memory up to 2 layers of $512\;\times\;512$ with $8$ bit weights and $8$ bit integers inputs.
+For this reason setups up to $512\;\times\;512$ matrices where considered.
+All tests were executed after a clean start-up to minimise noise given by other applications slowing down context switching and synchronization inside the CPU scheduler.
+The result shown where from batch runs of 100 pseudo-random matrices sequentially computed with different algorithms and different setups.
+By testing with this approaches, we can reduce the noise given by comparing different matrices configurations and focus on the performance of the algorithm itself.
+For optimisation reasons two test where conducted with optimisation switched on and off, to see how the compiler optimisations affected the results.
+\subsubsection{Performances Data}\label{sec:Data_Perf}
+The main metric used to evaluate the performances of the algorithms is the time to complete a single MVM computed with the aid of the $std::high_resolution_clock$.
+\begin{figure}[!htb]
+\begin{minipage}{1\textwidth}
+    {\includegraphics[width=\textwidth]{Figures/mvm_benchmark_violin_plot (1).png}
+    \label{fig:no_opt_plot}}
+\end{minipage}
+\hfill
+\begin{minipage}{1\textwidth}
+    {\includegraphics[width=\textwidth]{Figures/mvm_benchmark_violin_plot_opt.png}
+    \label{fig:opt_plot}}
+\end{minipage}
+\caption{\\ Violin plots of the results with and without optimisation. \label{fig:plots}}
+\end{figure}
+
+\input{Figures/optimised_table.tex}
+\input{Figures/unoptimised_table.tex}
+
+\subsection{Performance Analysis}\label{sec:data_anal}
+The benchmark results demonstrate that the optimised implementation achieves approximately $4\times$ speedup over the naive approach when compiled with O3 optimisations. 
+This performance gain stems from the combined effect of algorithmic improvements and compiler optimisations working together. \\
+The following sections analyze each optimisation technique individually to understand their contributions.
+
+\subsubsection{Impact of Compiler optimisations}\label{sec:compiler_impact}
+Figure \ref{fig:plots} shows the execution time distribution for different algorithm variants compiled with both O0 and O3 flags. 
+The compiler optimisation have great impact on all implementations, with O3 producing on average $2\times$ faster code across all tested algorithms.
+Under O3 optimisation, even the naive implementation benefits from compiler optimisations, though it remains the slowest one. 
+The only exception takes place with very small matrices, where the multithreaded overhead exceeds the benefit of parallelization.
+Notably, compiler optimisation interacts differently with our algorithmic improvements depending on the optimisation level. 
+Under O0, the 8-thread implementation outperforms the optimised single-threaded version, as our hand-coded optimisations cannot compensate for the lack of compiler support. 
+However, under O3, the single-threaded optimised version becomes the fastest option, as the compiler can make good use of the optimisations we implemented through improved data-structures and memory access patterns.
+
+\subsubsection{Cache Behavior}\label{sec:cache_beh}
+Tables \ref{tab:cachegrind_o3_revised} and \ref{tab:cachegrind_o0} present detailed performance counters collected using Valgrind's Cachegrind tool.
+These metrics provide more data on how each algorithm interacts with the CPU cache hierarchy.
+Starting with the instruction counts (Ir), we observe a $4\times$ reduction in instructions executed, this aligns with the overall memory access reductions seen in both data reads (Dr) and writes (Dw).
+The cache miss rate (L1 Read Misses) remains constant across all algorithms and optimisations levels, indicating that our optimisations primarily reduce the volume of memory traffic rather than improving cache hit rates.
+However, a closer look at the miss counts reveals that the remaining misses are the result of compulsory misses that cachegrind can not simulate away by including hardware prefetching simulation.
+Using the Linux perf tool, further analysis shows that the algorithms achieve an almost-zero L1-cache miss rate on typical consumer hardware.
+While this tool might not be as accurate as cachegrind it gives a better idea of the real cache miss rate, counting the hardware prefetcher.
+
+\subsubsection{Memory Access Patterns}\label{sec:mem_access}
+The register reuse optimisation shows great optimisation effects on memory usage. 
+Under O0 compilation, data reads decrease by a factor of $3.1\times$ compared to the naive implementation, while under O3 this improvement reaches $20\times$. 
+More significantly, write operations are reduced by $400\times$ (O0) and $260\times$ (O3).
+This reduction in memory traffic directly translates to performance gains, as memory accesses are often the bottleneck in MVM operations.
+The difference in data reads and writes between O0 and O3 highlights how compiler optimisations can further enhances the benefits of algorithmic improvements.
+
+\subsubsection{Multithreading Performance}\label{sec:multi_perf}
+
+The effectiveness of multithreading varies significantly based on the optimisation level.
+Under O0, the 8-thread implementation outperforms the single-threaded optimised version by approximately $2\times$ on heavier workloads.
+This is because, without compiler optimisations, the benefits of parallel execution outweigh the overhead of thread management.
+However, under O3, the single-threaded optimised version becomes the fastest solution outperforming any multithreaded implementation.
+This shift occurs because the compiler greatly enhances the effectiveness of the single-threaded optimisations.
+Cachegrind results indicate that the multithreaded versions consume about the same amount of memory access as the single-threaded optimised version.
+
+However, studies show that multithreaded implementations can incur additional memory overhead \cite{tang_multithreaded_2024}. 
+Given the memory-constrained nature of large-scale SoC simulations discussed in the previous chapter (Section 
+\ref{sec:sw_const}), this overhead cannot be ignored.
+
+Based on these findings, the final implementation uses a dynamic dispatch approach:
+\begin{itemize}
+    \item When compiled with O3 optimisations: always use single-threaded optimised version
+    \item When compiled with O0: select algorithm based on matrix setup and size
+    \item Optional compile-time flag to force multithreading for specific usecases
+\end{itemize}
+
+To further enhance configurability, the Python generator exposes thread count as a tunable parameter, 
+allowing users to select the number of threads based on specific workload characteristics and system capabilities.
+
+\subsubsection{Compiler Code Generation Analysis}\label{sec:codegen_analysis}
+
+Further analysis of the generated assembly code under O3 flag provides more insight into how the compiler optimisations contribute to performance improvements.
+
+\paragraph{Vectorization} The compiler automatically recognizes vectorizable loops and generates SIMD instructions to process multiple data elements in parallel based on the data layout and hardware resources.
+The specific instructions used depend on the target architecture, for the tests conducted the X86 SSE2 flags were correctly applied.
+
+\paragraph{Loop Unrolling} One of the most significant optimisations observed is loop unrolling.
+By unrolling loops, the compiler reduces the overhead of loop control instructions and increases instruction-level parallelism.
+The specific unrolling factor, in the tested cases, is 16 with registers of 128 bit size used to process 16 8-bit integers in parallel.
+\paragraph{Register Allocation} The compiler maintains the majority of the variables in registers during the computation, minimizing stack accesses thus reducing memory traffic.
+
+
+\section{Module Validation}\label{sec:mod_val}
+To validate the module tests on the GVSoC platform were conducted and script to check the correctness of the results were implemented.
+\subsection{Algorithm Validation}\label{sec:alg_val}
+To validate the algorithm two main tests were used.
+The first one is a simple test with a known matrix and vector, the result of the MVM is known and can be compared with the result of the algorithm.
+The second required randomly generated matrices and vectors, the result of the MVM is computed by the algorithm and configuration files are generated to be used in a Python script capable of computing the same MVM using NumPy as reference.
+The results of the two tests were compared to produce a pass or fail result.
+As the algorithm is both deterministic and only uses integer arithmetic, the results are expected to be exactly the same without any variance.
+After thorough testing the algorithm was validated passing all tests.
+\subsection{GVSoC Integration Validation}\label{sec:gvsoc_val}
+To validate the integrations with GVSoC different tests were performed.
+To maintain the scope of the project the value of the weights were limited to $4$ bit integers, however the module is fully parametric and can be used with any number of bits.
+To validate such small weights simple tests were conducted.
+The clipping of the weights was the first aspect to be validated, tests with weights out of range were run and the result of the MVM was checked to be correct.
+Then tests with randomised vector and matrix values with all ones weights were executed, the result of the MVM is known and can be easily checked as $Y_i=\sum_{i}^{N}1\cdot X_i$ making the expected result appear on every output value.
+Finally a test with random weights and vectors containing the sign of the weights was conducted, as before the result of the MVM was easily checked as the sum of the values of the rows with the sign of the weights.
+To further validate the module, using the same approach as before, a value within each row of the matrix was set to zero and the result was checked by comparing the difference, given by excluding the zeroed value, with the expected value.
+All tests passed. The module correctly handles edge cases like weight clipping and produces identical results to NumPy reference implementations.
+
